@@ -11,7 +11,7 @@ static void *receive_message(void *args)
             if (read(client_data->server, get_message, sizeof(message_t)) != sizeof(message_t)) {
                 /* server fuck up */
             }
-            decrypt(get_message->message, client_data->code);
+            decrypt(get_message->message, client_data->code, get_message->iv);
             pthread_mutex_lock(&client_data->mutex);
             get_message->next = client_data->list;
             client_data->list = get_message;
@@ -57,7 +57,9 @@ void send_message(char msg[256], client_t *client_data)
     static message_t message = {0};
 
     strncpy(message.message, msg, 256);
-    encrypt(message.message, client_data->code);
+    for (int i = 0; i < 256; i++)
+        message.iv[i] = rand() & 0xFF;
+    encrypt(message.message, client_data->code, message.iv);
     message.command = 0x00;
     write(client_data->server, &message, sizeof(message_t));
 }
@@ -100,7 +102,7 @@ void logical_loop(client_t *client_data)
                 client_data->refresh = true;
                 continue;
             }
-            if (len != 255 && c >= 32 && c <= 126) {
+            if (len != 256 && c >= 32 && c <= 126) {
                 message[index] = c;
                 index++;
                 len++;

@@ -132,10 +132,8 @@ unsigned int connect_to_code(char *code, client_t *client_data)
 {
     unsigned int ip = getnbr_base(code, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
     int server;
-    char ip_str[INET_ADDRSTRLEN];
     struct sockaddr_in data_addr = {0};
     unsigned int data_addr_len = sizeof(struct sockaddr_in);
-    char buffer[256] = {0};
     
     server = socket(AF_INET, SOCK_STREAM, 0);
     if (server < 0) {

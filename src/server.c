@@ -46,7 +46,9 @@ static void accept_client(server_t *server_data)
         server_data->namelist = new_name;
         index++;
         sprintf(new_connexion.message, "%s join the chat.", new_name->name);
-        encrypt(new_connexion.message, server_data->code);
+        for (int i = 0; i < 256; i++)
+            new_connexion.iv[i] = rand() & 0xFF;
+        encrypt(new_connexion.message, server_data->code, new_connexion.iv);
         for (namelist_t *tmp = new_name; tmp; tmp = tmp->next)
             write(tmp->socket, &new_connexion, sizeof(message_t));
     }
@@ -63,12 +65,16 @@ static void relay(server_t *server_data)
                 break;
             }
             strncpy(message_to_relay.sender, tmp->name, 256);
-            message_to_relay.command |= 0x01;
-            write(tmp->socket, &message_to_relay, sizeof(message_t));
-            message_to_relay.command ^= 0x01;
             for (namelist_t *tmp2 = server_data->namelist; tmp2; tmp2 = tmp2->next) {
-                if (tmp->active && tmp != tmp2)
-                    write(tmp2->socket, &message_to_relay, sizeof(message_t));
+                if (tmp->active && tmp != tmp2) {
+                    if (tmp != tmp2)
+                        write(tmp2->socket, &message_to_relay, sizeof(message_t));
+                    else {
+                        message_to_relay.command |= 0x01;
+                        write(tmp->socket, &message_to_relay, sizeof(message_t));
+                        message_to_relay.command ^= 0x01;
+                    }
+                }
             }
         }
     }

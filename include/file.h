@@ -36,6 +36,7 @@ typedef struct namelist_s {
 typedef struct message {
     char sender[256];
     char message[256];
+    char iv[256];
     char command;
     struct message *next;
 } message_t;
@@ -70,7 +71,7 @@ void logical_loop(client_t *client_data);
 void *server(void *args);
 char fd_is(int fd, char can_read, char have_write);
 
-char *encrypt(char *str, char *key);
-char *decrypt(char *str, char *key);
+void encrypt(unsigned char str[256], unsigned char key[7], unsigned char iv[256]);
+void decrypt(unsigned char str[256], unsigned char key[7], unsigned char iv[256]);
 
 #endif
