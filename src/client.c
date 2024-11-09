@@ -9,6 +9,7 @@ static void *receive_message(void *args)
         while (fd_is(client_data->server, 0, 1)) {
             get_message = malloc(sizeof(message_t));
             if (read(client_data->server, get_message, sizeof(message_t)) != sizeof(message_t)) {
+                free(get_message);
                 /* server fuck up */
             }
             decrypt(get_message->message, client_data->code, get_message->iv);

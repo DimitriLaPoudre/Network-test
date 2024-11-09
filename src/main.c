@@ -49,23 +49,20 @@ static unsigned int get_ip_public(void)
     devlist = upnpDiscover(1000, NULL, NULL, 1, 0, 2, &error);
     if (devlist == NULL) {
         endwin();
-        printw("Erreur lors de la découverte des routeurs UPnP : %d\n", error);
-        refresh();
+        fprintf(stderr, "Erreur lors de la découverte des routeurs UPnP : %d\n", error);
         return 0;
     }
     dev = devlist;
     if (UPNP_GetValidIGD(dev, &urls, &data, lan_addr, sizeof(lan_addr)) != 1) {
         endwin();
-        printw("Erreur lors de la sélection du routeur UPnP\n");
-        refresh();
+        fprintf(stderr, "Erreur lors de la sélection du routeur UPnP\n");
         freeUPNPDevlist(devlist);
         return 0;
     }
 
     if (UPNP_GetExternalIPAddress(urls.controlURL, data.first.servicetype, externalIPAddress) != UPNPCOMMAND_SUCCESS) {
         endwin();
-        printw("Erreur lors de l'obtention de l'adresse IP externe.\n");
-        refresh();
+        fprintf(stderr, "Erreur lors de l'obtention de l'adresse IP externe.\n");
         return 0;
     } else {
         if (externalIPAddress[0]) {
@@ -86,8 +83,7 @@ static unsigned int get_ip_public(void)
                                 "Port Forwarding", "TCP", NULL, "10");
     if (error != UPNPCOMMAND_SUCCESS) {
         endwin();
-        printw("Erreur lors de l'ajout du port forwarding : %d (%s)\n", error, strupnperror(error));
-        refresh();
+        fprintf(stderr, "Erreur lors de l'ajout du port forwarding : %d (%s)\n", error, strupnperror(error));
         return 0;
     }
     FreeUPNPUrls(&urls);
